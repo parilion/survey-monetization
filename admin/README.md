@@ -1,5 +1,272 @@
-# Vue 3 + Vite
+# 管理后台
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+## 💻 项目简介
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+小红书问卷测试系统的管理后台，提供完整的问卷、题目、密码管理功能。
+
+## 🎯 核心功能
+
+- ✅ 管理员登录
+- ✅ 数据概览统计
+- ✅ 问卷管理（CRUD）
+- ✅ 题目管理（批量创建）
+- ✅ 结果模板管理
+- ✅ 密码管理（批量生成）
+- ✅ 答题记录查询
+
+## 🛠️ 技术栈
+
+- Vue 3 - 前端框架
+- Vite - 构建工具
+- Element Plus - UI组件库
+- Pinia - 状态管理
+- Vue Router - 路由管理
+- Axios - HTTP客户端
+
+## 📦 项目结构
+
+```
+admin/
+├── src/
+│   ├── views/              # 页面组件
+│   │   ├── Login.vue       # 登录页
+│   │   ├── Layout.vue      # 主布局
+│   │   ├── Dashboard.vue   # 数据概览
+│   │   ├── survey/
+│   │   │   └── List.vue    # 问卷列表
+│   │   ├── question/
+│   │   │   └── List.vue    # 题目列表
+│   │   ├── result/
+│   │   │   └── List.vue    # 结果模板列表
+│   │   ├── password/
+│   │   │   └── List.vue    # 密码列表
+│   │   └── answer/
+│   │       └── List.vue    # 答题记录
+│   ├── stores/             # Pinia状态管理
+│   │   └── user.js         # 用户状态
+│   ├── router/             # 路由配置
+│   │   └── index.js
+│   ├── api/                # API接口
+│   │   ├── request.js      # Axios封装
+│   │   └── index.js        # API方法
+│   ├── App.vue
+│   └── main.js
+├── vite.config.js
+└── package.json
+```
+
+## 🚀 快速开始
+
+### 安装依赖
+
+```bash
+npm install
+```
+
+### 开发模式
+
+```bash
+npm run dev
+```
+
+访问：http://localhost:5174
+
+**默认管理员账号：**
+- 用户名：`admin`
+- 密码：`admin123`
+
+### 生产构建
+
+```bash
+npm run build
+```
+
+构建产物在 `dist/` 目录
+
+### 预览构建结果
+
+```bash
+npm run preview
+```
+
+## 🔌 API配置
+
+API请求会自动代理到后端服务：
+
+```javascript
+// vite.config.js
+server: {
+  port: 5174,
+  proxy: {
+    '/api': {
+      target: 'http://localhost:3000',
+      changeOrigin: true
+    }
+  }
+}
+```
+
+## 📄 页面说明
+
+### 1. 登录页 (/login)
+
+- 用户名密码登录
+- 登录状态保存到LocalStorage
+- 路由守卫验证
+
+### 2. 数据概览 (/dashboard)
+
+- 统计卡片展示
+- 快速操作入口
+
+### 3. 问卷管理 (/survey)
+
+- 问卷列表查询
+- 新建/编辑/删除问卷
+- 跳转到题目管理
+
+### 4. 题目管理 (/question)
+
+- 按问卷筛选题目
+- 新建/编辑/删除题目
+- 支持添加多个选项
+- 设置计分类型
+
+### 5. 结果模板 (/result)
+
+- 按问卷筛选结果模板
+- 新建/编辑/删除结果
+- 配置结果类型和描述
+
+### 6. 密码管理 (/password)
+
+- 密码列表查询
+- 批量生成密码
+- 按状态筛选（未使用/已使用/已过期）
+- 查看使用详情
+
+### 7. 答题记录 (/answer)
+
+- 答题记录查询
+- 按问卷筛选
+- 查看用户答案详情
+
+## 🔐 权限管理
+
+当前版本使用简单的登录验证：
+
+```javascript
+// 路由守卫
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('admin_token')
+  if (to.path !== '/login' && !token) {
+    next('/login')
+  } else {
+    next()
+  }
+})
+```
+
+生产环境建议：
+- 使用JWT token验证
+- 添加角色权限控制
+- 添加操作日志
+
+## 🎨 主题定制
+
+Element Plus主题色可自定义：
+
+```javascript
+// main.js
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+
+// 或使用scss变量自定义
+```
+
+## 🔍 开发建议
+
+### API接口调用
+
+```javascript
+import { getSurveyList } from '@/api'
+
+// 使用async/await
+const res = await getSurveyList({ page: 1, limit: 20 })
+if (res.code === 200) {
+  // 处理数据
+}
+```
+
+### 表单验证
+
+使用Element Plus表单验证：
+
+```vue
+<el-form :model="form" :rules="rules" ref="formRef">
+  <el-form-item label="标题" prop="title">
+    <el-input v-model="form.title" />
+  </el-form-item>
+</el-form>
+```
+
+### 消息提示
+
+```javascript
+import { ElMessage } from 'element-plus'
+
+ElMessage.success('操作成功')
+ElMessage.error('操作失败')
+```
+
+## 📊 数据格式
+
+### API响应格式
+
+```json
+{
+  "code": 200,
+  "message": "成功",
+  "data": {
+    "list": [],
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 100,
+      "totalPages": 5
+    }
+  }
+}
+```
+
+## 🐛 常见问题
+
+### 1. 登录后跳转失败
+
+检查token是否正确保存：
+
+```javascript
+localStorage.getItem('admin_token')
+```
+
+### 2. API请求401错误
+
+token可能已过期，需要重新登录。
+
+### 3. 表格数据不显示
+
+检查API返回的数据格式是否正确。
+
+## 🔒 安全建议
+
+生产环境必须：
+
+1. 修改默认管理员密码
+2. 启用HTTPS
+3. 配置IP白名单
+4. 添加操作日志
+5. 定期更新依赖
+
+## 📄 许可证
+
+MIT License

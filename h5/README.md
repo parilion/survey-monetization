@@ -1,5 +1,199 @@
-# Vue 3 + Vite
+# H5用户端
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+## 📱 项目简介
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+小红书问卷测试系统的移动端用户界面，提供完整的测试流程体验。
+
+## 🎯 核心功能
+
+- ✅ 密码验证（12小时有效期）
+- ✅ 测试引导页
+- ✅ 答题流程（30题）
+- ✅ 进度自动保存
+- ✅ 结果展示
+- ✅ 重新测试
+
+## 🛠️ 技术栈
+
+- Vue 3 - 前端框架
+- Vite - 构建工具
+- Vant UI - 移动端组件库
+- Pinia - 状态管理
+- Vue Router - 路由管理
+- Axios - HTTP客户端
+
+## 📦 项目结构
+
+```
+h5/
+├── src/
+│   ├── views/              # 页面组件
+│   │   ├── PasswordVerify.vue  # 密码验证页
+│   │   ├── SurveyIntro.vue     # 测试引导页
+│   │   ├── Question.vue        # 答题页
+│   │   └── Result.vue          # 结果页
+│   ├── stores/             # Pinia状态管理
+│   │   └── survey.js       # 答题状态
+│   ├── router/             # 路由配置
+│   │   └── index.js
+│   ├── api/                # API接口
+│   │   ├── request.js      # Axios封装
+│   │   └── index.js        # API方法
+│   ├── App.vue
+│   └── main.js
+├── vite.config.js
+└── package.json
+```
+
+## 🚀 快速开始
+
+### 安装依赖
+
+```bash
+npm install
+```
+
+### 开发模式
+
+```bash
+npm run dev
+```
+
+访问：http://localhost:5173
+
+### 生产构建
+
+```bash
+npm run build
+```
+
+构建产物在 `dist/` 目录
+
+### 预览构建结果
+
+```bash
+npm run preview
+```
+
+## 🔌 API配置
+
+API请求会自动代理到后端服务：
+
+```javascript
+// vite.config.js
+server: {
+  port: 5173,
+  proxy: {
+    '/api': {
+      target: 'http://localhost:3000',
+      changeOrigin: true
+    }
+  }
+}
+```
+
+生产环境需要在Nginx中配置反向代理。
+
+## 📱 页面说明
+
+### 1. 密码验证页 (/)
+
+- 输入密码
+- 验证12小时有效期
+- 自动跳转到引导页
+
+### 2. 测试引导页 (/intro)
+
+- 显示问卷介绍
+- 显示题目总数
+- 点击开始答题
+
+### 3. 答题页 (/question)
+
+- 显示进度条
+- 显示当前题号（Question X/30）
+- 单选题目
+- 选择后自动跳转下一题
+- 进度自动保存到LocalStorage
+
+### 4. 结果页 (/result)
+
+- 显示性格类型
+- 显示性格描述
+- 显示推荐香调
+- 可以重新测试
+
+## 💾 数据持久化
+
+使用LocalStorage + Pinia保存答题进度：
+
+```javascript
+// 保存到LocalStorage
+localStorage.setItem('survey_data', JSON.stringify(state))
+
+// 恢复进度
+const saved = localStorage.getItem('survey_data')
+if (saved) {
+  const data = JSON.parse(saved)
+  // 恢复状态
+}
+```
+
+刷新页面后自动恢复答题进度。
+
+## 🎨 样式说明
+
+使用Vant UI组件库，主题色可在 `src/style.css` 中自定义。
+
+移动端适配使用viewport单位，设计稿宽度375px。
+
+## 🔍 调试技巧
+
+### 查看状态
+
+```javascript
+// 浏览器控制台
+localStorage.getItem('survey_data')
+```
+
+### 清除进度
+
+```javascript
+localStorage.removeItem('survey_data')
+```
+
+### 查看API请求
+
+打开浏览器开发者工具 → Network标签
+
+## 📝 环境变量
+
+可以在 `.env` 文件中配置：
+
+```env
+# API基础地址（可选）
+VITE_API_BASE_URL=https://api.example.com
+```
+
+## 🐛 常见问题
+
+### 1. API请求失败
+
+确认后端服务已启动：http://localhost:3000/api
+
+### 2. 进度丢失
+
+检查LocalStorage是否被清除。
+
+### 3. 页面样式异常
+
+确认Vant UI已正确引入：
+
+```javascript
+// main.js
+import 'vant/lib/index.css'
+```
+
+## 📄 许可证
+
+MIT License

@@ -3,7 +3,9 @@
     "allow": [
       "Bash(npm install)",
       "Bash(npm install:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: 完成后端核心API开发\n\n- 实现问卷管理模块\\(CRUD\\)\n- 实现题目管理模块\\(支持批量创建\\)\n- 实现答题提交和结果计算模块\n- 实现结果模板管理模块\n- 创建结果计算器工具类\n- 完善所有模块的DTO验证\n- 编写完整的API文档\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit:*)"
     ]
   }
 }
