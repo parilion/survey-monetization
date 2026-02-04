@@ -5,6 +5,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import * as entities from './entities';
 import { PasswordModule } from './modules/password/password.module';
+import { SurveyModule } from './modules/survey/survey.module';
+import { QuestionModule } from './modules/question/question.module';
+import { AnswerModule } from './modules/answer/answer.module';
+import { ResultModule } from './modules/result/result.module';
 
 @Module({
   imports: [
@@ -32,6 +36,10 @@ import { PasswordModule } from './modules/password/password.module';
     }),
     // 业务模块
     PasswordModule,
+    SurveyModule,
+    QuestionModule,
+    AnswerModule,
+    ResultModule,
   ],
   controllers: [AppController],
   providers: [AppService],
