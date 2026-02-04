@@ -1,0 +1,50 @@
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm';
+import { Question } from './question.entity';
+import { ResultTemplate } from './result-template.entity';
+import { AccessPassword } from './access-password.entity';
+
+@Entity('surveys')
+export class Survey {
+  @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
+  id: number;
+
+  @Column({ type: 'varchar', length: 200 })
+  title: string;
+
+  @Column({ type: 'text', nullable: true })
+  description: string;
+
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  introImage: string;
+
+  @Column({ type: 'text', nullable: true })
+  introText: string;
+
+  @Column({ type: 'int', default: 0 })
+  totalQuestions: number;
+
+  @Column({ type: 'tinyint', default: 1, comment: '状态: 0=禁用, 1=启用' })
+  status: number;
+
+  @CreateDateColumn({ type: 'datetime' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'datetime' })
+  updatedAt: Date;
+
+  @OneToMany(() => Question, (question) => question.survey)
+  questions: Question[];
+
+  @OneToMany(() => ResultTemplate, (template) => template.survey)
+  resultTemplates: ResultTemplate[];
+
+  @OneToMany(() => AccessPassword, (password) => password.survey)
+  passwords: AccessPassword[];
+}
