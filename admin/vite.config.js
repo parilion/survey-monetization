@@ -18,5 +18,8 @@ export default defineConfig({
         changeOrigin: true
       }
     }
+  },
+  define: {
+    'import.meta.env.VITE_H5_ORIGIN': JSON.stringify('http://localhost:5173')
   }
 })

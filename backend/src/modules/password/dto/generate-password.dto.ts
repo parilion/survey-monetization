@@ -1,11 +1,16 @@
-import { IsNotEmpty, IsInt, Min, Max } from 'class-validator';
+import { IsInt, IsOptional, Min, Max, IsString, ValidateIf } from 'class-validator';
 
 export class GeneratePasswordDto {
-  @IsNotEmpty({ message: '问卷ID不能为空' })
+  @ValidateIf((o) => !o.slug)
   @IsInt({ message: '问卷ID必须是整数' })
-  surveyId: number;
+  @IsOptional()
+  surveyId?: number;
 
-  @IsNotEmpty({ message: '生成数量不能为空' })
+  @ValidateIf((o) => !o.surveyId)
+  @IsString({ message: 'slug必须是字符串' })
+  @IsOptional()
+  slug?: string;
+
   @IsInt({ message: '生成数量必须是整数' })
   @Min(1, { message: '至少生成1个密码' })
   @Max(1000, { message: '最多生成1000个密码' })

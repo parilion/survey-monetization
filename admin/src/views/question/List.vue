@@ -1,61 +1,64 @@
 <template>
   <div class="question-list">
-    <el-card>
-      <template #header>
-        <div class="card-header">
-          <el-space>
-            <span>题目列表</span>
-            <el-select
-              v-model="selectedSurveyId"
-              placeholder="选择问卷"
-              style="width: 200px"
-              @change="loadData"
-            >
-              <el-option
-                v-for="survey in surveys"
-                :key="survey.id"
-                :label="survey.title"
-                :value="survey.id"
-              />
-            </el-select>
-          </el-space>
-          <el-button type="primary" @click="handleAdd" :disabled="!selectedSurveyId">
-            <el-icon><Plus /></el-icon>
-            新建题目
-          </el-button>
-        </div>
-      </template>
+    <!-- 页面标题栏 -->
+    <div class="page-header">
+      <div class="page-title-left">
+        <h3 class="page-title">题目列表</h3>
+        <el-select
+          v-model="selectedSurveyId"
+          placeholder="选择问卷"
+          style="width: 200px"
+          @change="loadData"
+        >
+          <el-option
+            v-for="survey in surveys"
+            :key="survey.id"
+            :label="survey.title"
+            :value="survey.id"
+          />
+        </el-select>
+      </div>
+      <el-button type="primary" @click="handleAdd" :disabled="!selectedSurveyId">
+        <el-icon><Plus /></el-icon>
+        新建题目
+      </el-button>
+    </div>
 
-      <el-table :data="tableData" v-loading="loading" border>
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="sortOrder" label="序号" width="80" />
-        <el-table-column prop="title" label="题目内容" min-width="300" />
-        <el-table-column label="选项数量" width="100">
-          <template #default="{ row }">
-            {{ row.options?.length || 0 }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="questionType" label="类型" width="100">
-          <template #default="{ row }">
-            {{ row.questionType === 'single' ? '单选' : '多选' }}
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
-          <template #default="{ row }">
-            <el-button size="small" @click="handleEdit(row)">编辑</el-button>
-            <el-button size="small" type="danger" @click="handleDelete(row)">
-              删除
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-card>
+    <!-- 表格卡片 -->
+    <div class="table-card">
+      <div class="table-card-body">
+        <el-table :data="tableData" v-loading="loading" stripe>
+          <el-table-column prop="id" label="ID" width="70" />
+          <el-table-column prop="sortOrder" label="序号" width="70" />
+          <el-table-column prop="title" label="题目内容" min-width="350" />
+          <el-table-column label="选项数量" width="90">
+            <template #default="{ row }">
+              {{ row.options?.length || 0 }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="questionType" label="类型" width="90">
+            <template #default="{ row }">
+              <el-tag size="small" :type="row.questionType === 'single' ? '' : 'warning'">
+                {{ row.questionType === 'single' ? '单选' : '多选' }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="160" fixed="right">
+            <template #default="{ row }">
+              <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
+              <span class="action-divider"></span>
+              <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+    </div>
 
     <!-- 新增/编辑对话框 -->
     <el-dialog
       v-model="dialogVisible"
       :title="dialogTitle"
-      width="700px"
+      width="720px"
     >
       <el-form :model="form" ref="formRef" label-width="100px">
         <el-form-item label="题目内容" required>
@@ -75,30 +78,49 @@
             <div
               v-for="(option, index) in form.options"
               :key="index"
-              style="margin-bottom: 10px; display: flex; gap: 10px"
+              class="option-row"
             >
-              <el-input
-                v-model="option.content"
-                placeholder="选项内容"
-                style="flex: 1"
-              />
-              <el-input
-                v-model="option.scoreType"
-                placeholder="计分类型(如:Citrus)"
-                style="width: 150px"
-              />
-              <el-button
-                type="danger"
-                size="small"
-                @click="removeOption(index)"
-              >
-                删除
-              </el-button>
+              <div class="option-header">
+                <div class="option-index">{{ String.fromCharCode(65 + index) }}</div>
+                <div class="option-basic">
+                  <el-input
+                    v-model="option.content"
+                    placeholder="选项内容"
+                    style="flex: 1"
+                  />
+                  <el-input
+                    v-model="option.scoreType"
+                    placeholder="结果类型"
+                    style="width: 150px"
+                  />
+                  <el-tooltip content="累加制模式下设置分值（1-10分），投票制模式下忽略" placement="top">
+                    <el-input-number
+                      v-model="option.scoreValue"
+                      :min="0"
+                      :max="10"
+                      :step="1"
+                      placeholder="分值"
+                      style="width: 100px"
+                    />
+                  </el-tooltip>
+                </div>
+              </div>
+              <div class="option-actions">
+                <el-button
+                  type="danger"
+                  link
+                  size="small"
+                  @click="removeOption(index)"
+                >
+                  删除
+                </el-button>
+              </div>
             </div>
-            <el-button @click="addOption" size="small">
+
+            <button type="button" class="add-option-btn" @click="addOption">
               <el-icon><Plus /></el-icon>
               添加选项
-            </el-button>
+            </button>
           </div>
         </el-form-item>
       </el-form>
@@ -144,8 +166,8 @@ const form = reactive({
   sortOrder: 1,
   questionType: 'single',
   options: [
-    { content: '', scoreType: '', sortOrder: 0 },
-    { content: '', scoreType: '', sortOrder: 1 }
+    { content: '', scoreType: '', scoreValue: 0, sortOrder: 0 },
+    { content: '', scoreType: '', scoreValue: 0, sortOrder: 1 }
   ]
 })
 
@@ -195,8 +217,8 @@ const handleAdd = () => {
     sortOrder: tableData.value.length + 1,
     questionType: 'single',
     options: [
-      { content: '', scoreType: '', sortOrder: 0 },
-      { content: '', scoreType: '', sortOrder: 1 }
+      { content: '', scoreType: '', scoreValue: 0, sortOrder: 0 },
+      { content: '', scoreType: '', scoreValue: 0, sortOrder: 1 }
     ]
   })
   dialogVisible.value = true
@@ -204,7 +226,21 @@ const handleAdd = () => {
 
 const handleEdit = (row) => {
   dialogTitle.value = '编辑题目'
-  Object.assign(form, { ...row })
+
+  Object.assign(form, {
+    id: row.id,
+    surveyId: row.surveyId,
+    title: row.title,
+    sortOrder: row.sortOrder,
+    questionType: row.questionType,
+    options: row.options ? row.options.map(opt => ({
+      id: opt.id,
+      content: opt.content,
+      scoreType: opt.scoreType || '',
+      scoreValue: opt.scoreValue || 0,
+      sortOrder: opt.sortOrder
+    })) : []
+  })
   dialogVisible.value = true
 }
 
@@ -212,6 +248,7 @@ const addOption = () => {
   form.options.push({
     content: '',
     scoreType: '',
+    scoreValue: 0,
     sortOrder: form.options.length
   })
 }
@@ -240,6 +277,14 @@ const handleSubmit = async () => {
     const data = { ...form }
     const id = data.id
     delete data.id
+
+    data.options = data.options.map(opt => ({
+      id: opt.id,
+      content: opt.content,
+      scoreType: opt.scoreType,
+      scoreValue: opt.scoreValue || 0,
+      sortOrder: opt.sortOrder
+    }))
 
     if (id) {
       await updateQuestion(id, data)
@@ -276,9 +321,65 @@ const handleDelete = (row) => {
 </script>
 
 <style scoped>
-.card-header {
+.option-row {
+  background: #fff;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: 12px 16px;
+  margin-bottom: 10px;
+}
+
+.option-header {
   display: flex;
-  justify-content: space-between;
+  gap: 12px;
   align-items: center;
+}
+
+.option-index {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.option-basic {
+  flex: 1;
+  display: flex;
+  gap: 10px;
+}
+
+.option-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.add-option-btn {
+  width: 100%;
+  height: 38px;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all var(--transition-fast);
+}
+
+.add-option-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 </style>

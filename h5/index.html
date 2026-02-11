@@ -3,8 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
     <title>h5</title>
+    <script>
+      (function () {
+        var MAX_WIDTH = 750;
+        function adaptDesktop() {
+          var w = window.innerWidth;
+          var app = document.getElementById('app');
+          if (!app) return;
+          if (w > MAX_WIDTH) {
+            var ratio = MAX_WIDTH / w;
+            app.style.zoom = ratio;
+            app.style.width = w + 'px';
+            app.style.margin = '0 auto';
+          } else {
+            app.style.zoom = '';
+            app.style.width = '';
+            app.style.margin = '';
+          }
+        }
+        document.addEventListener('DOMContentLoaded', adaptDesktop);
+        window.addEventListener('resize', adaptDesktop);
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>

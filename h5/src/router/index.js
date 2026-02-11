@@ -4,25 +4,25 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
-      name: 'password-verify',
+      path: '/:slug',
+      name: 'survey',
       component: () => import('@/views/PasswordVerify.vue'),
       meta: { title: '密码验证' }
     },
     {
-      path: '/intro',
+      path: '/:slug/intro',
       name: 'survey-intro',
       component: () => import('@/views/SurveyIntro.vue'),
       meta: { title: '测试介绍' }
     },
     {
-      path: '/question',
+      path: '/:slug/question',
       name: 'question',
       component: () => import('@/views/Question.vue'),
       meta: { title: '答题' }
     },
     {
-      path: '/result',
+      path: '/:slug/result',
       name: 'result',
       component: () => import('@/views/Result.vue'),
       meta: { title: '测试结果' }

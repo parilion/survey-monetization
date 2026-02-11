@@ -16,13 +16,14 @@ export class Question {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number;
 
-  @Column({ type: 'int', unsigned: true })
+  @Column({ name: 'survey_id', type: 'int', unsigned: true })
   surveyId: number;
 
   @Column({ type: 'text' })
   title: string;
 
   @Column({
+    name: 'question_type',
     type: 'varchar',
     length: 20,
     default: 'single',
@@ -30,16 +31,16 @@ export class Question {
   })
   questionType: string;
 
-  @Column({ type: 'int', default: 0, comment: '排序顺序' })
+  @Column({ name: 'sort_order', type: 'int', default: 0, comment: '排序顺序' })
   sortOrder: number;
 
-  @Column({ type: 'tinyint', default: 1, comment: '是否必答: 0=否, 1=是' })
+  @Column({ name: 'is_required', type: 'tinyint', default: 1, comment: '是否必答: 0=否, 1=是' })
   isRequired: number;
 
-  @CreateDateColumn({ type: 'datetime' })
+  @CreateDateColumn({ name: 'created_at', type: 'datetime' })
   createdAt: Date;
 
-  @UpdateDateColumn({ type: 'datetime' })
+  @UpdateDateColumn({ name: 'updated_at', type: 'datetime' })
   updatedAt: Date;
 
   @ManyToOne(() => Survey, (survey) => survey.questions, {

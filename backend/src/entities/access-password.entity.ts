@@ -14,7 +14,7 @@ export class AccessPassword {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number;
 
-  @Column({ type: 'int', unsigned: true })
+  @Column({ name: 'survey_id', type: 'int', unsigned: true })
   surveyId: number;
 
   @Column({ type: 'varchar', length: 50, unique: true })
@@ -23,29 +23,20 @@ export class AccessPassword {
   @Column({
     type: 'tinyint',
     default: 0,
-    comment: '状态: 0=未使用, 1=已使用, 2=已过期',
+    comment: '状态: 0=可使用, 1=已过期',
   })
   status: number;
 
-  @Column({ type: 'datetime' })
+  @Column({ name: 'generated_at', type: 'datetime' })
   generatedAt: Date;
 
-  @Column({ type: 'datetime', comment: '过期时间' })
+  @Column({ name: 'expires_at', type: 'datetime', comment: '过期时间' })
   expiresAt: Date;
 
-  @Column({ type: 'datetime', nullable: true })
-  usedAt: Date;
-
-  @Column({ type: 'varchar', length: 50, nullable: true })
-  userIp: string;
-
-  @Column({ type: 'varchar', length: 500, nullable: true })
-  userAgent: string;
-
-  @CreateDateColumn({ type: 'datetime' })
+  @CreateDateColumn({ name: 'created_at', type: 'datetime' })
   createdAt: Date;
 
-  @UpdateDateColumn({ type: 'datetime' })
+  @UpdateDateColumn({ name: 'updated_at', type: 'datetime' })
   updatedAt: Date;
 
   @ManyToOne(() => Survey, (survey) => survey.passwords, {

@@ -2,23 +2,23 @@ import request from './request'
 
 // ========== 问卷管理 ==========
 export function getSurveyList(params) {
-  return request({ url: '/survey', method: 'get', params })
+  return request({ url: '/surveys', method: 'get', params })
 }
 
 export function getSurveyDetail(id) {
-  return request({ url: `/survey/${id}`, method: 'get' })
+  return request({ url: `/surveys/${id}`, method: 'get' })
 }
 
 export function createSurvey(data) {
-  return request({ url: '/survey', method: 'post', data })
+  return request({ url: '/surveys', method: 'post', data })
 }
 
 export function updateSurvey(id, data) {
-  return request({ url: `/survey/${id}`, method: 'put', data })
+  return request({ url: `/surveys/${id}`, method: 'put', data })
 }
 
 export function deleteSurvey(id) {
-  return request({ url: `/survey/${id}`, method: 'delete' })
+  return request({ url: `/surveys/${id}`, method: 'delete' })
 }
 
 // ========== 题目管理 ==========
@@ -91,4 +91,25 @@ export function getAnswerList(params) {
 
 export function getAnswerDetail(id) {
   return request({ url: `/answer/${id}`, method: 'get' })
+}
+
+// ========== 计分配置管理 ==========
+export function getScoreConfig(surveyId) {
+  return request({ url: `/score-config/${surveyId}`, method: 'get' })
+}
+
+export function getScoreConfigOrCreate(surveyId) {
+  return request({ url: `/score-config/${surveyId}/or-create`, method: 'get' })
+}
+
+export function createScoreConfig(data) {
+  return request({ url: '/score-config', method: 'post', data })
+}
+
+export function updateScoreConfig(surveyId, data) {
+  return request({ url: `/score-config/${surveyId}`, method: 'put', data })
+}
+
+export function deleteScoreConfig(surveyId) {
+  return request({ url: `/score-config/${surveyId}`, method: 'delete' })
 }

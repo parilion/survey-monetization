@@ -1,0 +1,124 @@
+/* ========================================
+   Element Plus 覆盖样式
+   ======================================== */
+
+/* ---- 按钮 ---- */
+.el-button {
+  border-radius: var(--radius-md) !important;
+}
+
+.el-button--primary {
+  --el-button-bg-color: var(--color-primary);
+  --el-button-border-color: var(--color-primary);
+}
+
+/* ---- 卡片 ---- */
+.el-card {
+  border-radius: var(--radius-lg) !important;
+  border: none !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.el-card__header {
+  border-bottom: 1px solid var(--color-border-light) !important;
+  padding: 16px 20px !important;
+}
+
+.el-card__body {
+  padding: 20px !important;
+}
+
+/* ---- 表格 ---- */
+.el-table {
+  --el-table-border-color: transparent;
+  --el-table-header-bg-color: var(--color-bg-stripe);
+  --el-table-header-text-color: var(--color-text-secondary);
+  --el-table-row-hover-bg-color: var(--color-bg-hover);
+  --el-table-text-color: var(--color-text-primary);
+  font-size: 14px;
+}
+
+.el-table thead th {
+  font-weight: 500 !important;
+  font-size: 13px !important;
+}
+
+.el-table--striped .el-table__body tr.el-table__row--striped td {
+  background: var(--color-bg-stripe) !important;
+}
+
+/* ---- 对话框 ---- */
+.el-dialog {
+  border-radius: var(--radius-xl) !important;
+  overflow: hidden;
+}
+
+.el-dialog__header {
+  border-bottom: 1px solid var(--color-border-light);
+  margin-right: 0 !important;
+  padding: 16px 24px !important;
+}
+
+.el-dialog__title {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: var(--color-text-title) !important;
+}
+
+.el-dialog__body {
+  padding: 24px !important;
+}
+
+.el-dialog__footer {
+  border-top: 1px solid var(--color-border-light);
+  padding: 12px 24px !important;
+}
+
+/* ---- 表单 ---- */
+.el-form-item__label {
+  font-weight: 500 !important;
+  color: var(--color-text-primary) !important;
+}
+
+.el-input__wrapper,
+.el-textarea__inner {
+  border-radius: var(--radius-md) !important;
+}
+
+/* ---- 分页 ---- */
+.el-pagination {
+  justify-content: flex-end;
+}
+
+/* ---- 标签 ---- */
+.el-tag {
+  border-radius: var(--radius-sm) !important;
+}
+
+/* ---- 菜单 ---- */
+.el-menu {
+  border-right: none !important;
+}
+
+/* ---- 下拉菜单 ---- */
+.el-dropdown-menu {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+/* ---- 消息框 ---- */
+.el-message-box {
+  border-radius: var(--radius-xl) !important;
+}
+
+/* ---- 分割线 ---- */
+.el-divider__text {
+  color: var(--color-text-secondary) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+/* ---- Select ---- */
+.el-select__wrapper {
+  border-radius: var(--radius-md) !important;
+}

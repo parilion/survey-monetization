@@ -9,6 +9,7 @@ import { SurveyModule } from './modules/survey/survey.module';
 import { QuestionModule } from './modules/question/question.module';
 import { AnswerModule } from './modules/answer/answer.module';
 import { ResultModule } from './modules/result/result.module';
+import { ScoreConfigModule } from './modules/score-config/score-config.module';
 
 @Module({
   imports: [
@@ -23,11 +24,11 @@ import { ResultModule } from './modules/result/result.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'mysql',
-        host: configService.get('DB_HOST'),
-        port: configService.get('DB_PORT'),
-        username: configService.get('DB_USERNAME'),
-        password: configService.get('DB_PASSWORD'),
-        database: configService.get('DB_DATABASE'),
+        host: configService.get<string>('DB_HOST', '127.0.0.1'),
+        port: parseInt(configService.get<string>('DB_PORT', '3306'), 10),
+        username: configService.get<string>('DB_USERNAME', 'root'),
+        password: configService.get<string>('DB_PASSWORD', ''),
+        database: configService.get<string>('DB_DATABASE', 'redbook_survey'),
         entities: Object.values(entities),
         synchronize: false, // 生产环境必须设为false
         logging: configService.get('NODE_ENV') === 'development',
@@ -40,6 +41,7 @@ import { ResultModule } from './modules/result/result.module';
     QuestionModule,
     AnswerModule,
     ResultModule,
+    ScoreConfigModule,
   ],
   controllers: [AppController],
   providers: [AppService],

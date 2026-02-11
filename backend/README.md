@@ -1,98 +1,183 @@
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+  <img src="https://img.shields.io/badge/RedBook-Survey%20System-blue" alt="RedBook Survey System" />
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# RedBook Survey System Backend
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+小红书问卷测试系统的后端服务，基于 NestJS + TypeORM + MySQL 构建。
 
-## Description
+## 技术栈
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **框架**: NestJS 10.x
+- **数据库**: MySQL 8.0
+- **ORM**: TypeORM
+- **验证**: class-validator
+- **语言**: TypeScript
 
-## Project setup
+## 快速开始
+
+### 环境要求
+
+- Node.js >= 18
+- MySQL >= 8.0
+
+### 安装依赖
 
 ```bash
-$ npm install
+cd backend
+npm install
 ```
 
-## Compile and run the project
+### 配置环境变量
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+cp .env.example .env
+# 编辑 .env 文件配置数据库连接等信息
 ```
 
-## Run tests
+### 启动开发服务器
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm run start:dev
 ```
 
-## Deployment
+服务将在 `http://localhost:3000` 启动。
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### 构建生产版本
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm run build
+npm run start:prod
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## 目录结构
 
-## Resources
+```
+backend/
+├── src/
+│   ├── entities/           # TypeORM 实体类
+│   │   ├── admin-user.entity.ts
+│   │   ├── survey.entity.ts
+│   │   ├── question.entity.ts
+│   │   ├── option.entity.ts
+│   │   ├── result-template.entity.ts
+│   │   ├── access-password.entity.ts
+│   │   ├── answer-record.entity.ts
+│   │   ├── survey-score-config.entity.ts
+│   │   └── option-score-detail.entity.ts
+│   │
+│   ├── modules/            # 业务模块
+│   │   ├── survey/        # 问卷管理
+│   │   ├── question/       # 题目管理
+│   │   ├── password/       # 密码管理
+│   │   ├── answer/         # 答题服务
+│   │   ├── result/         # 结果模板
+│   │   └── score-config/   # 计分配置
+│   │
+│   ├── common/             # 公共组件
+│   │   ├── utils/          # 工具函数
+│   │   │   └── result-calculator.ts  # 结果计算器
+│   │   └── filters/        # 过滤器
+│   │       └── http-exception.filter.ts
+│   │
+│   ├── app.module.ts       # 根模块
+│   └── main.ts             # 入口文件
+│
+├── .env.example            # 环境变量示例
+├── package.json
+└── tsconfig.json
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+## 核心模块
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### 问卷模块 (Survey)
 
-## Support
+管理问卷的创建、编辑、发布。
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+**API 端点**:
 
-## Stay in touch
+| 方法 | 路径 | 说明 |
+|-----|------|------|
+| POST | `/api/surveys` | 创建问卷 |
+| GET | `/api/surveys` | 获取问卷列表 |
+| GET | `/api/surveys/:id` | 获取问卷详情 |
+| GET | `/api/surveys/slug/:slug` | 根据slug获取问卷 |
+| PUT | `/api/surveys/:id` | 更新问卷 |
+| DELETE | `/api/surveys/:id` | 删除问卷 |
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### 题目模块 (Question)
+
+管理问卷题目和选项。
+
+**API 端点**:
+
+| 方法 | 路径 | 说明 |
+|-----|------|------|
+| POST | `/api/questions` | 创建题目 |
+| GET | `/api/questions` | 获取题目列表 |
+| PUT | `/api/questions/:id` | 更新题目 |
+| DELETE | `/api/questions/:id` | 删除题目 |
+
+### 密码模块 (Password)
+
+管理访问密码的生成和验证。
+
+**API 端点**:
+
+| 方法 | 路径 | 说明 |
+|-----|------|------|
+| POST | `/api/password/verify` | 验证密码 |
+| POST | `/api/password/generate` | 生成密码 |
+| GET | `/api/password/list` | 获取密码列表 |
+| DELETE | `/api/password/batch` | 批量删除密码 |
+
+### 答题模块 (Answer)
+
+处理用户答题并返回结果。
+
+**API 端点**:
+
+| 方法 | 路径 | 说明 |
+|-----|------|------|
+| POST | `/api/answer/submit` | 提交答案并获取结果 |
+
+### 计分配置模块 (ScoreConfig)
+
+配置问卷的计分规则。
+
+**API 端点**:
+
+| 方法 | 路径 | 说明 |
+|-----|------|------|
+| GET | `/api/score-config/:surveyId/or-create` | 获取或创建计分配置 |
+| GET | `/api/score-config/preset/mbti` | 获取MBTI预设 |
+| GET | `/api/score-config/preset/nps` | 获取NPS预设 |
+| GET | `/api/score-config/preset/kpi` | 获取KPI预设 |
+| POST | `/api/score-config` | 保存计分配置 |
+
+## 计分系统
+
+支持多种计分模式：
+
+| 模式 | 说明 | 适用场景 |
+|-----|------|---------|
+| SINGLE | 单类型计分 | 简单性格测试 |
+| MULTI | 多类型计分 | 复合型测试 |
+| RANGE | 范围值计分 | NPS、满意度 |
+| MULTI_DIMENSION | 多维度计分 | MBTI、大五人格 |
+| KPI | KPI考核 | 绩效考核 |
+| CUSTOM_FORMULA | 自定义公式 | 复杂计算 |
+
+详细说明请参考 [计分系统文档](../docs/REFERENCE/SCORING_SYSTEM.md)。
+
+## 相关文档
+
+- [项目文档索引](../docs/README.md)
+- [API接口文档](../docs/REFERENCE/API.md)
+- [数据字典](../docs/REFERENCE/DATABASE.md)
+- [架构设计](../docs/ARCHITECTURE/ARCHITECTURE.md)
+- [部署指南](../docs/DEPLOYMENT/DEPLOYMENT.md)
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+MIT

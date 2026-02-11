@@ -1,10 +1,14 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import ElementPlus from 'element-plus'
-import 'element-plus/dist/index.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import router from './router'
 import App from './App.vue'
+
+// CSS 引入顺序：Design Tokens -> Element Plus -> 覆盖样式 -> 全局样式
+import './styles/variables.css'
+import 'element-plus/dist/index.css'
+import './styles/element-overrides.css'
 import './style.css'
 
 const app = createApp(App)

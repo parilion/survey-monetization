@@ -1,5 +1,17 @@
 <template>
   <div class="password-verify">
+    <!-- 问卷介绍区域 -->
+    <div v-if="survey" class="survey-header">
+      <div v-if="survey.introImage" class="header-image">
+        <img :src="survey.introImage" :alt="survey.title" />
+      </div>
+      <div class="header-content">
+        <h1 class="survey-title">{{ survey.title }}</h1>
+        <p v-if="survey.description" class="survey-desc">{{ survey.description }}</p>
+      </div>
+    </div>
+
+    <!-- 密码验证区域 -->
     <div class="container">
       <div class="icon">
         <van-icon name="lock" size="60" color="#1989fa" />
@@ -8,7 +20,7 @@
       <h1 class="title">密码保护</h1>
 
       <p class="desc">
-        "{{ pageTitle }}" 该页面受密码保护，请输入访问密码
+        请输入访问密码，开始测试
       </p>
 
       <van-field
@@ -27,46 +39,74 @@
         :loading="loading"
         @click="handleSubmit"
       >
-        访问页面
+        开始测试
       </van-button>
-
-      <div class="footer-links">
-        <a href="javascript:;" class="link">返回首页</a>
-        <span class="divider">|</span>
-        <a href="javascript:;" class="link">English</a>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { showToast } from 'vant'
+import { useRoute, useRouter } from 'vue-router'
+import { showToast, showLoadingToast, closeToast } from 'vant'
 import { useSurveyStore } from '@/stores/survey'
-import { verifyPassword } from '@/api'
+import { verifyPassword, getSurveyBySlug } from '@/api'
 
+const route = useRoute()
 const router = useRouter()
 const surveyStore = useSurveyStore()
 
 const password = ref('')
 const loading = ref(false)
-const pageTitle = ref('你的性格底色是什么味道？')
+const survey = ref(null)
 
-onMounted(() => {
-  // 检查是否有保存的数据
-  const restored = surveyStore.restoreFromStorage()
-  if (restored && surveyStore.passwordId) {
-    // 如果有保存的数据，直接跳转到对应页面
-    if (surveyStore.result) {
-      router.push('/result')
-    } else if (surveyStore.answers.length > 0) {
-      router.push('/question')
-    } else {
-      router.push('/intro')
-    }
+// 从路由获取slug
+const slug = route.params.slug
+
+onMounted(async () => {
+  // 清除之前的数据，确保每次访问都是全新的状态
+  surveyStore.clearAll()
+
+  // 加载问卷信息
+  if (slug) {
+    await loadSurvey(slug)
   }
 })
+
+// 加载问卷信息
+const loadSurvey = async (slug) => {
+  const toast = showLoadingToast({
+    message: '加载中...',
+    forbidClick: true,
+    duration: 0
+  })
+
+  try {
+    const res = await getSurveyBySlug(slug)
+    if (res.code === 200 && res.data) {
+      survey.value = res.data
+      // 保存问卷基本信息到store
+      surveyStore.setPasswordInfo({
+        passwordId: null,
+        surveyId: res.data.id,
+        expiresAt: null,
+        survey: {
+          id: res.data.id,
+          title: res.data.title,
+          description: res.data.description,
+          introImage: res.data.introImage,
+          introText: res.data.introText,
+          totalQuestions: res.data.totalQuestions || res.data.questions?.length || 0
+        }
+      })
+    }
+  } catch (error) {
+    console.error('加载问卷失败:', error)
+    showToast('问卷不存在')
+  } finally {
+    closeToast()
+  }
+}
 
 const handleSubmit = async () => {
   if (!password.value.trim()) {
@@ -88,9 +128,9 @@ const handleSubmit = async () => {
         type: 'success'
       })
 
-      // 跳转到引导页
+      // 跳转到引导页，保持在当前slug路径下
       setTimeout(() => {
-        router.push('/intro')
+        router.push(`/${slug}/intro`)
       }, 500)
     }
   } catch (error) {
@@ -104,18 +144,49 @@ const handleSubmit = async () => {
 <style scoped>
 .password-verify {
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: #f5f5f5;
+}
+
+/* 问卷介绍头部 */
+.survey-header {
+  background: white;
+  padding-bottom: 20px;
+}
+
+.header-image {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.header-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.header-content {
   padding: 20px;
+}
+
+.survey-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.survey-desc {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
 }
 
 .container {
   background: white;
+  margin: 20px;
   border-radius: 20px;
-  padding: 40px 30px;
-  width: 100%;
-  max-width: 500px;
+  padding: 30px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
@@ -155,24 +226,5 @@ const handleSubmit = async () => {
   font-size: 16px;
   height: 48px;
   margin-bottom: 20px;
-}
-
-.footer-links {
-  text-align: center;
-  font-size: 14px;
-}
-
-.link {
-  color: #1989fa;
-  text-decoration: none;
-}
-
-.link:active {
-  opacity: 0.7;
-}
-
-.divider {
-  margin: 0 10px;
-  color: #ccc;
 }
 </style>

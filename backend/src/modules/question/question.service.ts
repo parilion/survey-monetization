@@ -42,6 +42,7 @@ export class QuestionService {
           questionId: savedQuestion.id,
           content: opt.content,
           scoreType: opt.scoreType,
+          scoreValue: opt.scoreValue !== undefined ? opt.scoreValue : 1,
           sortOrder: opt.sortOrder !== undefined ? opt.sortOrder : index,
         }),
       );
@@ -64,7 +65,7 @@ export class QuestionService {
     // 验证问卷是否存在
     await this.surveyService.findOne(surveyId);
 
-    const createdQuestions = [];
+    const createdQuestions: Question[] = [];
 
     for (const questionDto of questions) {
       questionDto.surveyId = surveyId;
@@ -146,6 +147,7 @@ export class QuestionService {
           questionId: id,
           content: opt.content,
           scoreType: opt.scoreType,
+          scoreValue: opt.scoreValue !== undefined ? opt.scoreValue : 1,
           sortOrder: opt.sortOrder !== undefined ? opt.sortOrder : index,
         }),
       );

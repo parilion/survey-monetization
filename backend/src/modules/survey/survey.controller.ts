@@ -12,13 +12,13 @@ import { SurveyService } from './survey.service';
 import { CreateSurveyDto } from './dto/create-survey.dto';
 import { UpdateSurveyDto } from './dto/update-survey.dto';
 
-@Controller('survey')
+@Controller('surveys')
 export class SurveyController {
   constructor(private readonly surveyService: SurveyService) {}
 
   /**
    * 创建问卷
-   * POST /api/survey
+   * POST /api/surveys
    */
   @Post()
   async create(@Body() dto: CreateSurveyDto) {
@@ -32,7 +32,7 @@ export class SurveyController {
 
   /**
    * 获取问卷列表
-   * GET /api/survey
+   * GET /api/surveys
    */
   @Get()
   async findAll(
@@ -49,8 +49,22 @@ export class SurveyController {
   }
 
   /**
+   * 根据slug获取问卷（包含题目）
+   * GET /api/surveys/slug/:slug
+   */
+  @Get('slug/:slug')
+  async findBySlug(@Param('slug') slug: string) {
+    const result = await this.surveyService.findBySlugWithQuestions(slug);
+    return {
+      code: 200,
+      message: '获取成功',
+      data: result,
+    };
+  }
+
+  /**
    * 获取问卷详情
-   * GET /api/survey/:id
+   * GET /api/surveys/:id
    */
   @Get(':id')
   async findOne(@Param('id') id: number) {
@@ -64,7 +78,7 @@ export class SurveyController {
 
   /**
    * 获取问卷详情（包含题目）
-   * GET /api/survey/:id/with-questions
+   * GET /api/surveys/:id/with-questions
    */
   @Get(':id/with-questions')
   async findOneWithQuestions(@Param('id') id: number) {
@@ -78,7 +92,7 @@ export class SurveyController {
 
   /**
    * 更新问卷
-   * PUT /api/survey/:id
+   * PUT /api/surveys/:id
    */
   @Put(':id')
   async update(@Param('id') id: number, @Body() dto: UpdateSurveyDto) {
@@ -92,7 +106,7 @@ export class SurveyController {
 
   /**
    * 删除问卷
-   * DELETE /api/survey/:id
+   * DELETE /api/surveys/:id
    */
   @Delete(':id')
   async remove(@Param('id') id: number) {

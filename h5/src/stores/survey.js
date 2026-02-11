@@ -13,6 +13,9 @@ export const useSurveyStore = defineStore('survey', {
     surveyDescription: '',
     introImage: '',
     introText: '',
+    introTitle: '',
+    introSubtitle: '',
+    introButtonText: '',
     totalQuestions: 0,
 
     // 题目列表
@@ -59,18 +62,17 @@ export const useSurveyStore = defineStore('survey', {
         this.surveyDescription = data.survey.description
         this.introImage = data.survey.introImage
         this.introText = data.survey.introText
+        this.introTitle = data.survey.introTitle || ''
+        this.introSubtitle = data.survey.introSubtitle || ''
+        this.introButtonText = data.survey.introButtonText || ''
         this.totalQuestions = data.survey.totalQuestions
       }
-
-      // 保存到localStorage
-      this.saveToStorage()
     },
 
     // 设置题目列表
     setQuestions(questions) {
       this.questions = questions
       this.totalQuestions = questions.length
-      this.saveToStorage()
     },
 
     // 保存答案
@@ -87,16 +89,12 @@ export const useSurveyStore = defineStore('survey', {
         // 添加新答案
         this.answers.push({ questionId, optionId })
       }
-
-      // 保存到localStorage
-      this.saveToStorage()
     },
 
     // 下一题
     nextQuestion() {
       if (this.currentIndex < this.totalQuestions - 1) {
         this.currentIndex++
-        this.saveToStorage()
       }
     },
 
@@ -104,7 +102,6 @@ export const useSurveyStore = defineStore('survey', {
     prevQuestion() {
       if (this.currentIndex > 0) {
         this.currentIndex--
-        this.saveToStorage()
       }
     },
 
@@ -112,14 +109,12 @@ export const useSurveyStore = defineStore('survey', {
     goToQuestion(index) {
       if (index >= 0 && index < this.totalQuestions) {
         this.currentIndex = index
-        this.saveToStorage()
       }
     },
 
     // 设置结果
     setResult(result) {
       this.result = result
-      this.saveToStorage()
     },
 
     // 重置测试
@@ -127,49 +122,11 @@ export const useSurveyStore = defineStore('survey', {
       this.currentIndex = 0
       this.answers = []
       this.result = null
-      this.saveToStorage()
     },
 
     // 完全重置（清空所有数据）
     clearAll() {
       this.$reset()
-      localStorage.removeItem('survey_data')
-    },
-
-    // 保存到localStorage
-    saveToStorage() {
-      const data = {
-        passwordId: this.passwordId,
-        password: this.password,
-        expiresAt: this.expiresAt,
-        surveyId: this.surveyId,
-        surveyTitle: this.surveyTitle,
-        surveyDescription: this.surveyDescription,
-        introImage: this.introImage,
-        introText: this.introText,
-        totalQuestions: this.totalQuestions,
-        questions: this.questions,
-        currentIndex: this.currentIndex,
-        answers: this.answers,
-        result: this.result
-      }
-      localStorage.setItem('survey_data', JSON.stringify(data))
-    },
-
-    // 从localStorage恢复
-    restoreFromStorage() {
-      const saved = localStorage.getItem('survey_data')
-      if (saved) {
-        try {
-          const data = JSON.parse(saved)
-          Object.assign(this.$state, data)
-          return true
-        } catch (e) {
-          console.error('恢复数据失败:', e)
-          return false
-        }
-      }
-      return false
     }
   }
 })

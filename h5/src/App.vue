@@ -19,4 +19,10 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
+
+@media screen and (min-width: 750px) {
+  html {
+    background: #f5f0eb;
+  }
+}
 </style>

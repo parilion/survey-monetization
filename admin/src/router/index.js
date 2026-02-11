@@ -27,6 +27,12 @@ const router = createRouter({
           meta: { title: '问卷管理' }
         },
         {
+          path: 'survey/score-config',
+          name: 'score-config',
+          component: () => import('@/views/survey/ScoreConfig.vue'),
+          meta: { title: '计分配置' }
+        },
+        {
           path: 'question',
           name: 'question',
           component: () => import('@/views/question/List.vue'),
@@ -43,12 +49,6 @@ const router = createRouter({
           name: 'password',
           component: () => import('@/views/password/List.vue'),
           meta: { title: '密码管理' }
-        },
-        {
-          path: 'answer',
-          name: 'answer',
-          component: () => import('@/views/answer/List.vue'),
-          meta: { title: '答题记录' }
         }
       ]
     }

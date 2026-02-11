@@ -1,61 +1,73 @@
 <template>
   <div class="result-list">
-    <el-card>
-      <template #header>
-        <div class="card-header">
-          <el-space>
-            <span>结果模板列表</span>
-            <el-select
-              v-model="selectedSurveyId"
-              placeholder="选择问卷"
-              style="width: 200px"
-              clearable
-              @change="loadData"
-            >
-              <el-option
-                v-for="survey in surveys"
-                :key="survey.id"
-                :label="survey.title"
-                :value="survey.id"
-              />
-            </el-select>
-          </el-space>
-          <el-button type="primary" @click="handleAdd" :disabled="!selectedSurveyId">
-            <el-icon><Plus /></el-icon>
-            新建结果模板
-          </el-button>
-        </div>
-      </template>
+    <!-- 页面标题栏 -->
+    <div class="page-header">
+      <div class="page-title-left">
+        <h3 class="page-title">结果模板列表</h3>
+        <el-select
+          v-model="selectedSurveyId"
+          placeholder="选择问卷"
+          style="width: 200px"
+          clearable
+          @change="loadData"
+        >
+          <el-option
+            v-for="survey in surveys"
+            :key="survey.id"
+            :label="survey.title"
+            :value="survey.id"
+          />
+        </el-select>
+      </div>
+      <el-button type="primary" @click="handleAdd" :disabled="!selectedSurveyId">
+        <el-icon><Plus /></el-icon>
+        新建结果模板
+      </el-button>
+    </div>
 
-      <el-table :data="tableData" v-loading="loading" border>
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="resultType" label="结果类型" width="150" />
-        <el-table-column prop="title" label="结果标题" min-width="200" />
-        <el-table-column prop="description" label="简短描述" min-width="250" show-overflow-tooltip />
-        <el-table-column label="操作" width="200" fixed="right">
-          <template #default="{ row }">
-            <el-button size="small" @click="handleEdit(row)">编辑</el-button>
-            <el-button size="small" type="danger" @click="handleDelete(row)">
-              删除
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-card>
+    <!-- 表格卡片 -->
+    <div class="table-card">
+      <div class="table-card-body">
+        <el-table :data="tableData" v-loading="loading" stripe>
+          <el-table-column prop="id" label="ID" width="70" />
+          <el-table-column prop="resultType" label="结果类型" min-width="130">
+            <template #default="{ row }">
+              <el-tag size="small">{{ row.resultType }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="title" label="结果标题" min-width="220" />
+          <el-table-column prop="description" label="简短描述" min-width="300" show-overflow-tooltip />
+          <el-table-column label="操作" width="160" fixed="right">
+            <template #default="{ row }">
+              <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
+              <span class="action-divider"></span>
+              <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+    </div>
 
     <!-- 新增/编辑对话框 -->
     <el-dialog
       v-model="dialogVisible"
       :title="dialogTitle"
-      width="700px"
+      width="800px"
     >
       <el-form :model="form" ref="formRef" label-width="100px">
-        <el-form-item label="结果类型" required>
-          <el-input v-model="form.resultType" placeholder="如: Citrus, Rose" />
-        </el-form-item>
-        <el-form-item label="结果标题" required>
-          <el-input v-model="form.title" placeholder="如: 日光柑橘调" />
-        </el-form-item>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="结果类型" required>
+              <el-input v-model="form.resultType" placeholder="如: Citrus, ESTJ" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="结果标题" required>
+              <el-input v-model="form.title" placeholder="如: 日光柑橘调" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
         <el-form-item label="简短描述">
           <el-input
             v-model="form.description"
@@ -64,6 +76,27 @@
             placeholder="简短描述"
           />
         </el-form-item>
+
+        <el-form-item label="标签">
+          <el-select
+            v-model="form.tags"
+            multiple
+            filterable
+            allow-create
+            default-first-option
+            placeholder="添加标签（可输入新建）"
+            style="width: 100%"
+          >
+            <el-option
+              v-for="tag in commonTags"
+              :key="tag"
+              :label="tag"
+              :value="tag"
+            />
+          </el-select>
+          <div class="form-tip">选择或输入标签，用于结果展示</div>
+        </el-form-item>
+
         <el-form-item label="详细内容">
           <el-input
             v-model="form.detailContent"
@@ -71,6 +104,43 @@
             :rows="5"
             placeholder="详细的性格描述内容"
           />
+        </el-form-item>
+
+        <el-form-item label="推荐建议">
+          <el-input
+            v-model="form.recommendation"
+            type="textarea"
+            :rows="3"
+            placeholder="针对此结果的建议或推荐内容"
+          />
+        </el-form-item>
+
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="推荐链接">
+              <el-input v-model="form.recommendationUrl" placeholder="推荐内容链接" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="排序">
+              <el-input-number v-model="form.sortOrder" :min="0" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-form-item label="图片">
+          <el-input v-model="form.imageUrl" placeholder="图片URL" />
+        </el-form-item>
+
+        <el-form-item label="分数范围">
+          <el-row :gutter="10">
+            <el-col :span="8">
+              <el-input-number v-model="form.minScore" :min="0" placeholder="最小分" />
+            </el-col>
+            <el-col :span="8">
+              <el-input-number v-model="form.maxScore" :min="0" placeholder="最大分" />
+            </el-col>
+          </el-row>
         </el-form-item>
       </el-form>
 
@@ -85,7 +155,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   getSurveyList,
@@ -97,6 +168,7 @@ import {
 
 const loading = ref(false)
 const submitting = ref(false)
+const route = useRoute()
 const dialogVisible = ref(false)
 const dialogTitle = ref('新建结果模板')
 const formRef = ref()
@@ -111,11 +183,32 @@ const form = reactive({
   resultType: '',
   title: '',
   description: '',
-  detailContent: ''
+  detailContent: '',
+  tags: [],
+  recommendation: '',
+  recommendationUrl: '',
+  sortOrder: 0,
+  imageUrl: '',
+  minScore: 0,
+  maxScore: 100
 })
+
+// 常用标签
+const commonTags = [
+  '领导力', '执行力', '创造力', '沟通能力', '团队协作',
+  '逻辑思维', '分析能力', '决策力', '责任心', '进取心',
+  '外向', '内向', '理性', '感性', '乐观', '悲观',
+  '自信', '谦虚', '坚韧', '灵活', '稳重', '热情'
+]
 
 onMounted(async () => {
   await loadSurveys()
+  // 读取URL参数并自动选择问卷
+  const querySurveyId = route.query.surveyId
+  if (querySurveyId) {
+    selectedSurveyId.value = Number(querySurveyId)
+    loadData()
+  }
 })
 
 const loadSurveys = async () => {
@@ -155,14 +248,35 @@ const handleAdd = () => {
     resultType: '',
     title: '',
     description: '',
-    detailContent: ''
+    detailContent: '',
+    tags: [],
+    recommendation: '',
+    recommendationUrl: '',
+    sortOrder: 0,
+    imageUrl: '',
+    minScore: 0,
+    maxScore: 100
   })
   dialogVisible.value = true
 }
 
 const handleEdit = (row) => {
   dialogTitle.value = '编辑结果模板'
-  Object.assign(form, { ...row })
+  Object.assign(form, {
+    id: row.id,
+    surveyId: row.surveyId,
+    resultType: row.resultType,
+    title: row.title,
+    description: row.description,
+    detailContent: row.detailContent,
+    tags: row.tags || [],
+    recommendation: row.recommendation || '',
+    recommendationUrl: row.recommendationUrl || '',
+    sortOrder: row.sortOrder || 0,
+    imageUrl: row.imageUrl || '',
+    minScore: row.minScore || 0,
+    maxScore: row.maxScore || 100
+  })
   dialogVisible.value = true
 }
 
@@ -213,9 +327,4 @@ const handleDelete = (row) => {
 </script>
 
 <style scoped>
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
 </style>

@@ -5,3 +5,5 @@ export { Option } from './option.entity';
 export { ResultTemplate } from './result-template.entity';
 export { AccessPassword } from './access-password.entity';
 export { AnswerRecord } from './answer-record.entity';
+export { SurveyScoreConfig } from './survey-score-config.entity';
+export { OptionScoreDetail } from './option-score-detail.entity';

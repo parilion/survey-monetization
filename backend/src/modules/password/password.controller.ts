@@ -5,11 +5,9 @@ import {
   Delete,
   Body,
   Query,
-  Req,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { Request } from 'express';
 import { PasswordService } from './password.service';
 import { VerifyPasswordDto } from './dto/verify-password.dto';
 import { GeneratePasswordDto } from './dto/generate-password.dto';
@@ -21,18 +19,12 @@ export class PasswordController {
   /**
    * 验证密码（H5用户端调用）
    * POST /api/password/verify
+   * 密码在12小时有效期内可重复使用
    */
   @Post('verify')
   @HttpCode(HttpStatus.OK)
-  async verifyPassword(@Body() dto: VerifyPasswordDto, @Req() req: Request) {
-    const userIp = req.ip || req.headers['x-real-ip'] || 'unknown';
-    const userAgent = req.headers['user-agent'] || 'unknown';
-
-    const result = await this.passwordService.verifyPassword(
-      dto,
-      userIp as string,
-      userAgent as string,
-    );
+  async verifyPassword(@Body() dto: VerifyPasswordDto) {
+    const result = await this.passwordService.verifyPassword(dto);
 
     return {
       code: 200,

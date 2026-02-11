@@ -9,10 +9,18 @@ export function verifyPassword(password) {
   })
 }
 
+// 根据slug获取问卷详情（包含题目）
+export function getSurveyBySlug(slug) {
+  return request({
+    url: `/surveys/slug/${slug}`,
+    method: 'get'
+  })
+}
+
 // 获取问卷详情（包含题目）
 export function getSurveyWithQuestions(surveyId) {
   return request({
-    url: `/survey/${surveyId}/with-questions`,
+    url: `/surveys/${surveyId}/with-questions`,
     method: 'get'
   })
 }

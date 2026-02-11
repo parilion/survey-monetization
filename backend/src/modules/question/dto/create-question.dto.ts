@@ -6,10 +6,15 @@ import {
   ValidateNested,
   IsOptional,
   Min,
+  IsObject,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class OptionDto {
+  @IsOptional()
+  @IsInt({ message: '选项ID必须是整数' })
+  id?: number;
+
   @IsNotEmpty({ message: '选项内容不能为空' })
   @IsString({ message: '选项内容必须是字符串' })
   content: string;
@@ -17,6 +22,27 @@ export class OptionDto {
   @IsOptional()
   @IsString({ message: '计分类型必须是字符串' })
   scoreType?: string;
+
+  @IsOptional()
+  @IsInt({ message: '计分分值必须是整数' })
+  @Min(0, { message: '计分分值必须大于等于0' })
+  scoreValue?: number;
+
+  @IsOptional()
+  @IsArray({ message: '目标类型必须是数组' })
+  targetTypes?: string[];
+
+  @IsOptional()
+  @IsString({ message: '映射类型必须是字符串' })
+  mappedType?: string;
+
+  @IsOptional()
+  @IsObject({ message: '维度得分必须是对象' })
+  dimensionScores?: Record<string, number>;
+
+  @IsOptional()
+  @IsObject({ message: '指标得分必须是对象' })
+  metricScores?: Record<string, number>;
 
   @IsOptional()
   @IsInt({ message: '排序必须是整数' })

@@ -20,37 +20,29 @@ export class PasswordService {
   /**
    * 验证密码
    * 核心逻辑：
-   * 1. 查询密码（状态=未使用）
-   * 2. 检查是否过期（12小时）
-   * 3. 标记为已使用
+   * 1. 查询密码
+   * 2. 检查是否已过期（status=1 或 时间过期）
+   * 3. 不标记已使用，允许12小时内重复使用
    * 4. 返回密码信息
    */
-  async verifyPassword(
-    dto: VerifyPasswordDto,
-    userIp: string,
-    userAgent: string,
-  ) {
+  async verifyPassword(dto: VerifyPasswordDto) {
     // 1. 查询密码
     const password = await this.passwordRepo.findOne({
-      where: {
-        password: dto.password,
-        status: 0, // 未使用
-      },
+      where: { password: dto.password },
       relations: ['survey'],
     });
 
     if (!password) {
-      throw new HttpException(
-        '密码无效或已使用',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('密码无效', HttpStatus.BAD_REQUEST);
     }
 
-    // 2. 检查是否过期
+    // 2. 检查是否已过期（status=1 或 时间过期）
     const now = new Date();
-    if (now > password.expiresAt) {
-      // 标记为已过期
-      await this.passwordRepo.update(password.id, { status: 2 });
+    if (password.status === 1 || now > password.expiresAt) {
+      // 如果是时间过期但状态未更新，更新状态
+      if (password.status === 0) {
+        await this.passwordRepo.update(password.id, { status: 1 });
+      }
       throw new HttpException(
         '密码已过期，请联系客服获取新密码',
         HttpStatus.BAD_REQUEST,
@@ -58,21 +50,11 @@ export class PasswordService {
     }
 
     // 3. 检查问卷是否启用
-    if (password.survey.status !== 1) {
-      throw new HttpException(
-        '该问卷暂时不可用',
-        HttpStatus.BAD_REQUEST,
-      );
+    if (!password.survey || password.survey.status !== 1) {
+      throw new HttpException('该问卷暂时不可用', HttpStatus.BAD_REQUEST);
     }
 
-    // 4. 标记为已使用
-    await this.passwordRepo.update(password.id, {
-      status: 1,
-      usedAt: now,
-      userIp,
-      userAgent,
-    });
-
+    // 4. 不再更新 status，直接返回（可重复使用）
     return {
       passwordId: password.id,
       surveyId: password.surveyId,
@@ -92,10 +74,17 @@ export class PasswordService {
    * 批量生成密码
    */
   async generatePasswords(dto: GeneratePasswordDto) {
-    // 验证问卷是否存在
-    const survey = await this.surveyRepo.findOne({
-      where: { id: dto.surveyId },
-    });
+    // 根据surveyId或slug查询问卷
+    let survey;
+    if (dto.surveyId) {
+      survey = await this.surveyRepo.findOne({
+        where: { id: dto.surveyId },
+      });
+    } else if (dto.slug) {
+      survey = await this.surveyRepo.findOne({
+        where: { slug: dto.slug },
+      });
+    }
 
     if (!survey) {
       throw new HttpException(
@@ -153,7 +142,7 @@ export class PasswordService {
     const [list, total] = await this.passwordRepo.findAndCount({
       where,
       relations: ['survey'],
-      order: { createdAt: 'DESC' },
+      order: { id: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
     });
@@ -163,13 +152,11 @@ export class PasswordService {
         id: p.id,
         password: p.password,
         status: p.status,
-        statusText: this.getStatusText(p.status),
+        statusText: this.getStatusText(p.status, p.expiresAt),
         surveyId: p.surveyId,
         surveyTitle: p.survey?.title,
         generatedAt: p.generatedAt,
         expiresAt: p.expiresAt,
-        usedAt: p.usedAt,
-        userIp: p.userIp,
       })),
       pagination: {
         page,
@@ -206,13 +193,17 @@ export class PasswordService {
 
   /**
    * 获取状态文本
+   * 新状态设计：0=可使用, 1=已过期
+   * 同时检查时间是否已过期
    */
-  private getStatusText(status: number): string {
-    const statusMap = {
-      0: '未使用',
-      1: '已使用',
-      2: '已过期',
-    };
-    return statusMap[status] || '未知';
+  private getStatusText(status: number, expiresAt?: Date): string {
+    // 如果 status=1 或者时间已过期，都显示为已过期
+    if (status === 1) {
+      return '已过期';
+    }
+    if (expiresAt && new Date() > expiresAt) {
+      return '已过期';
+    }
+    return '可使用';
   }
 }

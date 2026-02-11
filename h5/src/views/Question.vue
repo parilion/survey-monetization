@@ -1,35 +1,22 @@
 <template>
   <div class="question-page">
-    <!-- 顶部标题栏 -->
-    <div class="header">
-      <van-icon name="arrow-left" size="20" @click="handleBack" />
-      <div class="title-bar">
-        <van-icon name="success" color="#07c160" />
-        <span class="title-text">{{ surveyStore.surveyTitle }}</span>
+    <!-- 顶部区域 -->
+    <div class="hero-section">
+      <p class="hero-label">{{ surveyStore.surveyTitle }}</p>
+      <div class="progress-info">
+        <span class="progress-text">Question {{ currentIndex + 1 }}/{{ totalQuestions }}</span>
       </div>
-      <div class="header-icons">
-        <van-icon name="replay" size="20" />
-        <van-icon name="delete-o" size="20" />
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" :style="{ width: progressPercentage + '%' }"></div>
+        </div>
       </div>
     </div>
 
     <!-- 答题卡片 -->
-    <div class="container">
+    <div class="card-section">
       <div class="question-card">
-        <!-- 进度条 -->
-        <div class="progress-wrapper">
-          <van-progress
-            :percentage="progressPercentage"
-            color="linear-gradient(to right, #ff6034, #ee0a24)"
-            :show-pivot="false"
-            stroke-width="6"
-          />
-        </div>
-
-        <!-- 题号 -->
-        <div class="question-number">
-          Question {{ currentIndex + 1 }}/{{ totalQuestions }}
-        </div>
+        <div class="card-ornament">&#10047;</div>
 
         <!-- 题目 -->
         <h2 class="question-title">{{ currentQuestion?.title }}</h2>
@@ -44,39 +31,56 @@
             @click="handleSelectOption(option.id)"
           >
             <span class="option-text">{{ option.content }}</span>
-            <van-icon
-              v-if="selectedOptionId === option.id"
-              name="success"
-              color="#1989fa"
-              size="20"
-            />
+            <span v-if="selectedOptionId === option.id" class="option-check">&#10003;</span>
           </div>
+        </div>
+
+        <!-- 上一题/下一题按钮 -->
+        <div class="nav-buttons">
+          <button
+            class="nav-btn prev-btn"
+            :disabled="currentIndex === 0"
+            @click="handlePrev"
+          >
+            &lsaquo; 上一题
+          </button>
+          <button
+            class="nav-btn next-btn"
+            :disabled="currentIndex >= totalQuestions - 1"
+            @click="handleNext"
+          >
+            下一题 &rsaquo;
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- 底部导航 -->
-    <div class="bottom-nav">
-      <van-icon name="arrow-left" size="24" @click="handlePrev" />
-      <van-icon name="search" size="24" />
-      <van-icon name="bars" size="24" class="active" />
-      <van-badge :content="currentIndex + 1" max="99">
-        <van-icon name="bookmark-o" size="24" />
-      </van-badge>
-      <van-icon name="wap-home-o" size="24" />
+    <!-- 页脚 -->
+    <div class="footer-section">
+      <p class="footer-name">{{ surveyStore.surveyTitle }}</p>
+      <p class="footer-disclaimer">本测试仅供娱乐参考，不构成专业建议</p>
+      <div class="footer-ornaments">
+        <span>&#127793;</span>
+        <span>&#127807;</span>
+        <span>&#127811;</span>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { showToast, showLoadingToast, showConfirmDialog } from 'vant'
+import { useRoute, useRouter } from 'vue-router'
+import { showToast, showLoadingToast } from 'vant'
 import { useSurveyStore } from '@/stores/survey'
 import { submitAnswer } from '@/api'
 
+const route = useRoute()
 const router = useRouter()
 const surveyStore = useSurveyStore()
+
+// 获取当前slug
+const slug = computed(() => route.params.slug)
 
 const selectedOptionId = ref(null)
 
@@ -106,7 +110,7 @@ onMounted(() => {
   // 检查是否有问卷数据
   if (!surveyStore.surveyId || surveyStore.questions.length === 0) {
     showToast('请先验证密码')
-    router.push('/')
+    router.push(`/${slug.value}`)
   }
 })
 
@@ -146,17 +150,6 @@ const handlePrev = () => {
   }
 }
 
-const handleBack = async () => {
-  const confirmed = await showConfirmDialog({
-    title: '提示',
-    message: '确定要退出测试吗？您的答题进度已保存。'
-  }).catch(() => false)
-
-  if (confirmed) {
-    router.push('/intro')
-  }
-}
-
 const handleSubmit = async () => {
   const toast = showLoadingToast({
     message: '提交中...',
@@ -182,9 +175,9 @@ const handleSubmit = async () => {
         type: 'success'
       })
 
-      // 跳转到结果页
+      // 跳转到结果页，保持在当前slug路径下
       setTimeout(() => {
-        router.push('/result')
+        router.push(`/${slug.value}/result`)
       }, 500)
     }
   } catch (error) {
@@ -199,83 +192,94 @@ const handleSubmit = async () => {
 <style scoped>
 .question-page {
   min-height: 100vh;
+  background-color: #f5f0eb;
   display: flex;
   flex-direction: column;
-  padding-bottom: 60px;
-}
-
-.header {
-  background: white;
-  padding: 12px 16px;
-  display: flex;
   align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #eee;
+  font-family: 'Noto Sans SC', sans-serif;
 }
 
-.title-bar {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+/* ===== Hero 区域 ===== */
+.hero-section {
+  width: 100%;
+  padding: 50px 30px 28px;
+  text-align: center;
 }
 
-.title-text {
+.hero-label {
+  font-family: 'Noto Serif SC', serif;
   font-size: 14px;
-  color: #333;
+  color: #b8a692;
+  letter-spacing: 2px;
+  margin: 0 0 20px;
+}
+
+.progress-info {
+  margin-bottom: 12px;
+}
+
+.progress-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 13px;
+  color: #b8a692;
+  letter-spacing: 1px;
+}
+
+.progress-bar-wrap {
   max-width: 200px;
+  margin: 0 auto;
+}
+
+.progress-bar-track {
+  height: 4px;
+  background-color: #e8e0d6;
+  border-radius: 2px;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-.header-icons {
-  display: flex;
-  gap: 12px;
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #c9bba9, #b8865a);
+  border-radius: 2px;
+  transition: width 0.4s ease;
 }
 
-.header .van-icon {
-  cursor: pointer;
-}
-
-.container {
+/* ===== 卡片区域 ===== */
+.card-section {
+  width: 100%;
+  padding: 0 24px 20px;
   flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+  align-items: flex-start;
 }
 
 .question-card {
-  background: white;
-  border-radius: 20px;
-  padding: 30px 25px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 32px 28px;
   width: 100%;
-  max-width: 500px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 20px rgba(90, 74, 58, 0.06);
+  text-align: center;
 }
 
-.progress-wrapper {
+.card-ornament {
+  font-size: 16px;
+  color: #c9bba9;
   margin-bottom: 20px;
 }
 
-.question-number {
-  font-size: 13px;
-  color: #999;
-  margin-bottom: 15px;
-  text-align: center;
-}
-
 .question-title {
-  font-size: 22px;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 20px;
   font-weight: 600;
-  color: #333;
+  color: #3a2e22;
   text-align: center;
-  margin-bottom: 30px;
-  line-height: 1.5;
+  margin: 0 0 28px;
+  line-height: 1.6;
+  letter-spacing: 1px;
 }
 
+/* ===== 选项列表 ===== */
 .options-list {
   display: flex;
   flex-direction: column;
@@ -283,14 +287,15 @@ const handleSubmit = async () => {
 }
 
 .option-item {
-  border: 2px solid #e5e5e5;
+  border: 1.5px solid #e8e0d6;
   border-radius: 12px;
   padding: 16px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
+  background: #faf7f4;
 }
 
 .option-item:active {
@@ -298,36 +303,99 @@ const handleSubmit = async () => {
 }
 
 .option-item.selected {
-  border-color: #1989fa;
-  background: #f0f8ff;
+  border-color: #b8865a;
+  background: rgba(184, 134, 90, 0.08);
 }
 
 .option-text {
   font-size: 15px;
-  color: #333;
+  color: #5a4a3a;
   flex: 1;
+  text-align: left;
 }
 
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 60px;
-  background: white;
+.option-check {
+  font-size: 16px;
+  color: #b8865a;
+  font-weight: 600;
+}
+
+/* ===== 导航按钮 ===== */
+.nav-buttons {
+  display: flex;
+  gap: 16px;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid #ebe5de;
+}
+
+.nav-btn {
+  flex: 1;
+  height: 44px;
+  border-radius: 22px;
+  font-size: 14px;
+  font-family: 'Noto Sans SC', sans-serif;
   display: flex;
   align-items: center;
-  justify-content: space-around;
-  border-top: 1px solid #eee;
-  padding: 0 20px;
-}
-
-.bottom-nav .van-icon {
-  color: #999;
+  justify-content: center;
+  gap: 4px;
   cursor: pointer;
+  transition: all 0.25s ease;
+  letter-spacing: 1px;
 }
 
-.bottom-nav .van-icon.active {
-  color: #1989fa;
+.nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.prev-btn {
+  background: #ffffff;
+  border: 1px solid #d8cfc4;
+  color: #b8a692;
+}
+
+.prev-btn:active:not(:disabled) {
+  background: #faf7f4;
+}
+
+.next-btn {
+  background: #f0e8df;
+  border: none;
+  color: #5a4a3a;
+  font-weight: 500;
+}
+
+.next-btn:active:not(:disabled) {
+  background: #e8ddd2;
+}
+
+/* ===== 页脚 ===== */
+.footer-section {
+  margin-top: auto;
+  padding: 30px 20px 40px;
+  text-align: center;
+}
+
+.footer-name {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 12px;
+  color: #c9bba9;
+  letter-spacing: 2px;
+  margin: 0 0 6px;
+}
+
+.footer-disclaimer {
+  font-size: 11px;
+  color: #d4c8b8;
+  margin: 0 0 16px;
+}
+
+.footer-ornaments {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  font-size: 14px;
+  color: #d4c8b8;
 }
 </style>

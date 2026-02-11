@@ -1,75 +1,71 @@
 <template>
   <div class="survey-intro">
-    <div class="container">
-      <div class="content-card">
-        <div class="header">
-          <h1 class="main-title">寻香·性格测试</h1>
-          <p class="sub-title">SCENT OF SOUL</p>
-        </div>
+    <!-- Hero 区域 -->
+    <div class="hero-section">
+      <h1 class="hero-title">{{ displayTitle }}</h1>
+      <p v-if="displaySubtitle" class="hero-subtitle">{{ displaySubtitle }}</p>
+      <div class="hero-divider"></div>
+      <p v-if="surveyStore.surveyDescription" class="hero-slogan">{{ surveyStore.surveyDescription }}</p>
+    </div>
 
-        <div class="video-placeholder">
-          <van-icon name="play-circle-o" size="60" color="#999" />
-        </div>
-
-        <div class="description">
-          <p>{{ introText }}</p>
-        </div>
-
-        <van-button
-          type="primary"
-          block
-          round
-          class="start-btn"
-          @click="handleStart"
-        >
-          开始寻香之旅
-        </van-button>
+    <!-- 白色卡片区域 -->
+    <div class="card-section">
+      <div class="intro-card">
+        <h2 class="card-title">{{ surveyStore.surveyTitle }}</h2>
+        <div class="card-ornament">&#10047;</div>
+        <div v-if="surveyStore.introText" class="card-body" v-html="formattedIntroText"></div>
+        <button class="start-btn" @click="handleStart">
+          <span class="btn-icon">&#127807;</span>
+          {{ displayButtonText }}
+        </button>
       </div>
     </div>
 
-    <div class="bottom-nav">
-      <van-icon name="arrow-left" size="24" />
-      <van-icon name="search" size="24" />
-      <van-icon name="bars" size="24" class="active" />
-      <van-badge :content="totalQuestions" max="99">
-        <van-icon name="bookmark-o" size="24" />
-      </van-badge>
-      <van-icon name="wap-home-o" size="24" />
+    <!-- 页脚 -->
+    <div class="footer-section">
+      <p class="footer-name">{{ surveyStore.surveyTitle }}</p>
+      <p class="footer-disclaimer">本测试仅供娱乐参考，不构成专业建议</p>
+      <div class="footer-ornaments">
+        <span>&#127793;</span>
+        <span>&#127807;</span>
+        <span>&#127811;</span>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { showToast, showLoadingToast, closeToast } from 'vant'
 import { useSurveyStore } from '@/stores/survey'
 import { getSurveyWithQuestions } from '@/api'
 
+const route = useRoute()
 const router = useRouter()
 const surveyStore = useSurveyStore()
 
-const introText = computed(() => {
-  return (
-    surveyStore.introText ||
-    '香水是灵魂的隐形外衣。通过 30 道深度心理潜意识测试，寻找那款真正属于你灵魂底色的本命香氛。'
-  )
+const slug = computed(() => route.params.slug)
+
+// 带默认值回退的显示字段
+const displayTitle = computed(() => surveyStore.introTitle || surveyStore.surveyTitle || '问卷测试')
+const displaySubtitle = computed(() => surveyStore.introSubtitle || '')
+const displayButtonText = computed(() => surveyStore.introButtonText || '开始测试')
+
+// 将 introText 中的 **文字** 转换为高亮 span
+const formattedIntroText = computed(() => {
+  const text = surveyStore.introText || ''
+  return text.replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>')
 })
 
-const totalQuestions = computed(() => surveyStore.totalQuestions || 30)
-
 onMounted(async () => {
-  // 如果没有问卷ID，返回密码验证页
   if (!surveyStore.surveyId) {
     showToast('请先验证密码')
-    router.push('/')
+    router.push(`/${slug.value}`)
     return
   }
 
-  // 加载问卷题目
-  if (surveyStore.questions.length === 0) {
-    await loadQuestions()
-  }
+  await loadQuestions()
 })
 
 const loadQuestions = async () => {
@@ -85,7 +81,6 @@ const loadQuestions = async () => {
     if (res.code === 200 && res.data) {
       const survey = res.data
 
-      // 保存题目列表
       if (survey.questions && survey.questions.length > 0) {
         surveyStore.setQuestions(survey.questions)
       } else {
@@ -106,104 +101,160 @@ const handleStart = () => {
     return
   }
 
-  // 跳转到答题页
-  router.push('/question')
+  router.push(`/${slug.value}/question`)
 }
 </script>
 
 <style scoped>
 .survey-intro {
   min-height: 100vh;
+  background-color: #f5f0eb;
   display: flex;
   flex-direction: column;
-  padding-bottom: 60px;
-}
-
-.container {
-  flex: 1;
-  display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 20px;
+  font-family: 'Noto Sans SC', sans-serif;
 }
 
-.content-card {
-  background: white;
-  border-radius: 20px;
-  padding: 40px 30px;
+/* ===== Hero 区域 ===== */
+.hero-section {
   width: 100%;
-  max-width: 500px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 60px 30px 36px;
   text-align: center;
 }
 
-.header {
-  margin-bottom: 30px;
-}
-
-.main-title {
-  font-size: 28px;
+.hero-title {
+  font-family: 'Playfair Display', 'Noto Serif SC', serif;
+  font-size: 42px;
   font-weight: 700;
-  color: #333;
-  margin-bottom: 8px;
+  color: #3a2e22;
   letter-spacing: 2px;
+  margin: 0 0 10px;
+  line-height: 1.2;
 }
 
-.sub-title {
-  font-size: 14px;
-  color: #999;
+.hero-subtitle {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 15px;
+  color: #b8a692;
   letter-spacing: 3px;
-  font-weight: 300;
+  margin: 0 0 24px;
+  font-weight: 400;
 }
 
-.video-placeholder {
+.hero-divider {
+  width: 40px;
+  height: 1px;
+  background-color: #c9bba9;
+  margin: 0 auto 18px;
+}
+
+.hero-slogan {
+  font-size: 13px;
+  color: #b8a692;
+  letter-spacing: 1px;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ===== 卡片区域 ===== */
+.card-section {
   width: 100%;
-  height: 180px;
-  background: #f5f5f5;
-  border-radius: 12px;
-  display: flex;
+  padding: 0 24px 20px;
+}
+
+.intro-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 36px 28px 32px;
+  box-shadow: 0 2px 20px rgba(90, 74, 58, 0.06);
+  text-align: center;
+}
+
+.card-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #3a2e22;
+  margin: 0 0 12px;
+  letter-spacing: 1px;
+}
+
+.card-ornament {
+  font-size: 16px;
+  color: #c9bba9;
+  margin-bottom: 20px;
+}
+
+.card-body {
+  font-size: 14px;
+  line-height: 2;
+  color: #5a4a3a;
+  text-align: center;
+  margin-bottom: 28px;
+  white-space: pre-line;
+}
+
+.card-body :deep(.highlight) {
+  color: #b8865a;
+  font-weight: 500;
+}
+
+/* ===== 开始按钮 ===== */
+.start-btn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 25px;
-}
-
-.description {
-  margin-bottom: 30px;
-}
-
-.description p {
-  font-size: 15px;
-  line-height: 1.8;
-  color: #666;
-}
-
-.start-btn {
-  font-size: 16px;
-  height: 50px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  gap: 6px;
+  width: 100%;
+  max-width: 260px;
+  height: 48px;
+  background-color: #f0e8df;
+  color: #5a4a3a;
   border: none;
-}
-
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 60px;
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  border-top: 1px solid #eee;
-  padding: 0 20px;
-}
-
-.bottom-nav .van-icon {
-  color: #999;
+  border-radius: 30px;
+  font-size: 15px;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 500;
+  letter-spacing: 2px;
   cursor: pointer;
+  transition: all 0.25s ease;
 }
 
-.bottom-nav .van-icon.active {
-  color: #1989fa;
+.start-btn:active {
+  transform: scale(0.97);
+  background-color: #e8ddd2;
+}
+
+.btn-icon {
+  font-size: 16px;
+}
+
+/* ===== 页脚 ===== */
+.footer-section {
+  margin-top: auto;
+  padding: 30px 20px 40px;
+  text-align: center;
+}
+
+.footer-name {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 12px;
+  color: #c9bba9;
+  letter-spacing: 2px;
+  margin: 0 0 6px;
+}
+
+.footer-disclaimer {
+  font-size: 11px;
+  color: #d4c8b8;
+  margin: 0 0 16px;
+}
+
+.footer-ornaments {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  font-size: 14px;
+  color: #d4c8b8;
 }
 </style>
